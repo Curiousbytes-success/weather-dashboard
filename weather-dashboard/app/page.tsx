@@ -29,6 +29,7 @@ export default function Home() {
   const [data, setData] = useState<any>(null);
   const [sideCardsData, setSideCardsData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isAqiFallback, setIsAqiFallback] = useState<boolean>(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -128,6 +129,14 @@ export default function Home() {
         setLoading(true);
         const mainResult = await getWeatherData(selectedCity.lat, selectedCity.lon);
         setData(mainResult);
+        
+        // AQI Fallback state detection
+      // AQI Fallback state detection
+if (mainResult?.aqi === 42) {
+  setIsAqiFallback(true);
+} else {
+  setIsAqiFallback(false);
+}
 
         const sideCities = CITIES.slice(1, 4);
         const sidePromises = sideCities.map(c => getWeatherData(c.lat, c.lon));
@@ -140,6 +149,7 @@ export default function Home() {
         })));
       } catch (err) {
         console.error(err);
+        setIsAqiFallback(true);
       } finally {
         setLoading(false);
       }
@@ -152,20 +162,31 @@ export default function Home() {
     return Math.round(tempC);
   }
 
-  const chartData = data ? [
-    { day: "Sun", temp: convertTemp(data.weather.hourly.temperature_2m[0]) },
-    { day: "Mon", temp: convertTemp(data.weather.hourly.temperature_2m[4]) },
-    { day: "Tue", temp: convertTemp(data.weather.hourly.temperature_2m[8]) },
-    { day: "Wed", temp: convertTemp(data.weather.hourly.temperature_2m[12]) },
-    { day: "Thu", temp: convertTemp(data.weather.hourly.temperature_2m[16]) },
-    { day: "Fri", temp: convertTemp(data.weather.hourly.temperature_2m[20]) },
-  ] : [];
+  // Current time slicing for hourly temperature data
+  const getSlicedHourlyData = () => {
+    if (!data?.weather?.hourly?.time) return [];
+    
+    const times: string[] = data.weather.hourly.time;
+    const temps: number[] = data.weather.hourly.temperature_2m;
+    const codes: number[] = data.weather.hourly.weather_code;
 
-  const hourlyList = data?.weather?.hourly?.time.slice(0, 12).map((timeStr: string, idx: number) => ({
-    time: new Date(timeStr).toLocaleTimeString("en-US", { hour: "numeric", hour12: true }),
-    temp: convertTemp(data.weather.hourly.temperature_2m[idx]),
-    code: data.weather.hourly.weather_code[idx]
-  })) || [];
+    const now = new Date();
+    const currentHourIndex = times.findIndex((t) => new Date(t) >= now);
+    const startIndex = currentHourIndex !== -1 ? currentHourIndex : 0;
+
+    return times.slice(startIndex, startIndex + 12).map((timeStr: string, idx: number) => ({
+      time: new Date(timeStr).toLocaleTimeString("en-US", { hour: "numeric", hour12: true }),
+      temp: convertTemp(temps[startIndex + idx]),
+      code: codes[startIndex + idx]
+    }));
+  };
+
+  const hourlyList = getSlicedHourlyData();
+
+  const chartData = hourlyList.slice(0, 6).map((item, index) => ({
+    day: item.time,
+    temp: item.temp
+  }));
 
   return (
     <main className="min-h-screen bg-[#0d131a] text-slate-100 flex items-center justify-center p-2 md:p-6 relative overflow-x-hidden font-sans">
@@ -278,6 +299,11 @@ export default function Home() {
                   <span className={`px-3 py-1 rounded-full text-[10px] font-bold border flex items-center gap-1 ${aqiInfo.color}`}>
                     <Activity size={12} /> AQI {aqiValue} • {aqiInfo.label}
                   </span>
+                  {isAqiFallback && (
+                    <span className="px-2 py-0.5 text-[10px] font-medium bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/30">
+                      Estimated / Offline
+                    </span>
+                  )}
                 </div>
 
                 <h1 className="text-3xl md:text-5xl font-extrabold text-white">
@@ -395,9 +421,16 @@ export default function Home() {
                     <span className="text-xs font-semibold">Air Quality</span>
                     <Activity size={18} className="text-emerald-400" />
                   </div>
-                  <div className="mt-3">
-                    <p className="text-2xl font-extrabold text-white">{aqiValue}</p>
-                    <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${aqiInfo.color}`}>
+                  <div className="mt-3 flex flex-col items-start gap-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-2xl font-extrabold text-white">{aqiValue}</p>
+                      {isAqiFallback && (
+                        <span className="px-1.5 py-0.5 text-[9px] font-medium bg-amber-500/20 text-amber-300 rounded border border-amber-500/30">
+                          Estimated
+                        </span>
+                      )}
+                    </div>
+                    <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold border ${aqiInfo.color}`}>
                       {aqiInfo.label}
                     </span>
                   </div>
