@@ -10,7 +10,7 @@ import {
   getUVLabel,
   City,
 } from "@/lib/weather";
-import { AreaChart, Area, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, Tooltip, ResponsiveContainer } from "recharts";
 import {
   LayoutGrid,
   Compass,
@@ -57,7 +57,6 @@ export default function Home() {
     return Math.round(tempC);
   };
 
-  // Weather metrics derived values
   const currentTemp = data ? convertTemp(data.weather.current.temperature_2m) : 0;
   const windSpeed = data ? Math.round(data.weather.current.wind_speed_10m) : 0;
   const humidity = data ? data.weather.current.relative_humidity_2m : 0;
@@ -86,7 +85,6 @@ export default function Home() {
     return BACKGROUND_IMAGES.clouds;
   };
 
-  // Rain Effect Canvas
   useEffect(() => {
     if (weatherCode < 51) return;
     const canvas = canvasRef.current;
@@ -140,7 +138,6 @@ export default function Home() {
     };
   }, [weatherCode]);
 
-  // Debounced City Search
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (searchQuery.trim().length >= 2) {
@@ -153,7 +150,6 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Fetch Weather Data
   useEffect(() => {
     async function fetchData() {
       try {
@@ -182,7 +178,6 @@ export default function Home() {
     fetchData();
   }, [selectedCity]);
 
-  // Memoized Hourly Forecast Data
   const hourlyList = useMemo(() => {
     if (!data?.weather?.hourly?.time) return [];
 
@@ -360,40 +355,34 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Chart */}
-    <div className="w-full h-28 md:h-32 min-h-[112px] relative mt-1 [&_.recharts-surface]:overflow-visible">
-  <ResponsiveContainer width="100%" height="100%">
-    <AreaChart data={chartData} margin={{ top: 10, right: 5, left: 5, bottom: 0 }}>
-      <defs>
-        <linearGradient id="waveGlow" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity={0.35} />
-          <stop offset="100%" stopColor="#ffffff" stopOpacity={0.0} />
-        </linearGradient>
-      </defs>
-      <Tooltip
-        content={({ active, payload }) => {
-          if (active && payload && payload.length) {
-            return (
-              <div className="bg-slate-900/90 border border-white/20 px-2.5 py-1 rounded-lg text-xs text-white backdrop-blur-md shadow-lg">
-                {payload[0].value}°{unit}
+              {/* Clean Line Chart */}
+              <div className="w-full h-28 md:h-32 min-h-[112px] relative mt-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData} margin={{ top: 15, right: 10, left: 10, bottom: 5 }}>
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-slate-900/90 border border-white/20 px-2.5 py-1 rounded-lg text-xs text-white backdrop-blur-md shadow-lg">
+                              {payload[0].value}°{unit}
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="temp"
+                      stroke="#ffffff"
+                      strokeWidth={3}
+                      dot={{ r: 4, fill: "#ffffff", strokeWidth: 0 }}
+                      activeDot={{ r: 6, fill: "#ffffff", stroke: "rgba(255,255,255,0.5)", strokeWidth: 4 }}
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-            );
-          }
-          return null;
-        }}
-      />
-      <Area
-        type="monotone"
-        dataKey="temp"
-        stroke="#ffffff"
-        strokeWidth={2.5}
-        fill="url(#waveGlow)"
-        fillOpacity={1}
-        isAnimationActive={false}
-      />
-    </AreaChart>
-  </ResponsiveContainer>
-</div>
             </>
           )}
 
