@@ -361,24 +361,35 @@ export default function Home() {
               </div>
 
               {/* Chart */}
-              <div className="w-full h-28 md:h-32 relative mt-1">
+              <div className="w-full h-28 md:h-32 min-h-[112px] relative mt-1">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData}>
+                  <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
                     <defs>
                       <linearGradient id="waveGlow" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ffffff" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#ffffff" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#ffffff" stopOpacity={0.0} />
                       </linearGradient>
                     </defs>
-                    <Tooltip content={({ payload }) => {
-                      if (!payload || payload.length === 0) return null;
-                      return (
-                        <div className="bg-slate-900/80 border border-white/20 p-2 rounded-lg text-xs text-white backdrop-blur-md">
-                          {payload[0].value}°{unit}
-                        </div>
-                      );
-                    }} />
-                    <Area type="natural" dataKey="temp" stroke="#ffffff" strokeWidth={3} fillOpacity={1} fill="url(#waveGlow)" />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-slate-900/90 border border-white/20 px-2.5 py-1 rounded-lg text-xs text-white backdrop-blur-md shadow-lg">
+                              {payload[0].value}°{unit}
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="temp"
+                      stroke="#ffffff"
+                      strokeWidth={2.5}
+                      fillOpacity={1}
+                      fill="url(#waveGlow)"
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
