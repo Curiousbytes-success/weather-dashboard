@@ -361,38 +361,39 @@ export default function Home() {
               </div>
 
               {/* Chart */}
-              <div className="w-full h-28 md:h-32 min-h-[112px] relative mt-1">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="waveGlow" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ffffff" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#ffffff" stopOpacity={0.0} />
-                      </linearGradient>
-                    </defs>
-                    <Tooltip
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          return (
-                            <div className="bg-slate-900/90 border border-white/20 px-2.5 py-1 rounded-lg text-xs text-white backdrop-blur-md shadow-lg">
-                              {payload[0].value}°{unit}
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="temp"
-                      stroke="#ffffff"
-                      strokeWidth={2.5}
-                      fillOpacity={1}
-                      fill="url(#waveGlow)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+    <div className="w-full h-28 md:h-32 min-h-[112px] relative mt-1 [&_.recharts-surface]:overflow-visible">
+  <ResponsiveContainer width="100%" height="100%">
+    <AreaChart data={chartData} margin={{ top: 10, right: 5, left: 5, bottom: 0 }}>
+      <defs>
+        <linearGradient id="waveGlow" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity={0.35} />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity={0.0} />
+        </linearGradient>
+      </defs>
+      <Tooltip
+        content={({ active, payload }) => {
+          if (active && payload && payload.length) {
+            return (
+              <div className="bg-slate-900/90 border border-white/20 px-2.5 py-1 rounded-lg text-xs text-white backdrop-blur-md shadow-lg">
+                {payload[0].value}°{unit}
               </div>
+            );
+          }
+          return null;
+        }}
+      />
+      <Area
+        type="monotone"
+        dataKey="temp"
+        stroke="#ffffff"
+        strokeWidth={2.5}
+        fill="url(#waveGlow)"
+        fillOpacity={1}
+        isAnimationActive={false}
+      />
+    </AreaChart>
+  </ResponsiveContainer>
+</div>
             </>
           )}
 

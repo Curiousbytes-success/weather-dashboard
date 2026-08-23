@@ -5,11 +5,17 @@
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Geist Mono', monospace;
+
+  /* Custom Color Palette Extensions */
+  --color-glass-card: rgba(18, 25, 38, 0.45);
+  --color-glass-border: rgba(255, 255, 255, 0.12);
+
+  /* Custom Animations */
+  --animate-clouds: flyClouds 28s ease-in-out infinite alternate;
+  --animate-lightning: lightningFlash 7s infinite;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,6 +30,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
 /* Custom 3D Glassmorphism Classes */
 .glass-card {
   background: rgba(15, 23, 42, 0.45);
@@ -47,15 +54,6 @@ body {
 .glow-ambient-2 {
   background: radial-gradient(circle, rgba(20, 184, 166, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
 }
-@keyframes flyClouds {
-  0% { transform: translateX(-10%); }
-  50% { transform: translateX(5%); }
-  100% { transform: translateX(-10%); }
-}
-
-.animate-clouds {
-  animation: flyClouds 25s ease-in-out infinite alternate;
-}
 
 .frosted-glass {
   background: rgba(255, 255, 255, 0.08);
@@ -72,14 +70,7 @@ body {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
-/* Custom Scrollbar for Dropdown */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-}
+/* Keyframes Definitions */
 @keyframes flyClouds {
   0% { transform: scale(1.05) translateX(-5%); }
   50% { transform: scale(1.1) translateX(3%); }
@@ -102,25 +93,25 @@ body {
   animation: lightningFlash 7s infinite;
 }
 
-.frosted-glass {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.frosted-card {
-  background: rgba(18, 25, 38, 0.45);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
-
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 10px;
+}
+
+/* Fix Recharts solid background issue */
+.recharts-wrapper,
+.recharts-surface,
+.recharts-layer,
+.recharts-default-tooltip {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+svg.recharts-surface path {
+  fill-opacity: 1;
+  background: transparent !important;
 }
